@@ -1,7 +1,7 @@
 {
-	"name":        "kohana-minion/tasks-migrations",
+	"name":        "ahmedelbougha/tasks-migrations",
 	"description": "Migration tasks for the kohana-minion cli framework",
-	"homepage":    "https://github.com/kohana-minion/tasks-migrations",
+	"homepage":    "https://github.com/ahmedelbougha/tasks-migrations",
 	"license":     "BSD-3-Clause",
 	"keywords":    ["kohana", "framework", "database", "migrations", "tasks"],
 	"authors": [
