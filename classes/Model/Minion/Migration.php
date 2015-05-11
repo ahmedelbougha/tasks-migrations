@@ -242,7 +242,7 @@ class Model_Minion_Migration extends Model
 	 */
 	public function add_migration(array $migration)
 	{
-		DB::insert($this->_table, array('timestamp', 'group', 'description'))
+		DB::insert($this->_table, array('`timestamp`', '`group`', '`description`'))
 			->values(array($migration['timestamp'], $migration['group'], $migration['description']))
 			->execute($this->_db);
 
@@ -269,8 +269,8 @@ class Model_Minion_Migration extends Model
 		}
 
 		return $this->_select()
-			->where('timestamp', '=', (string) $timestamp)
-			->where('group',  '=', (string) $group)
+			->where('`timestamp`', '=', (string) $timestamp)
+			->where('`group`',  '=', (string) $group)
 			->execute($this->_db)
 			->current();
 	}
@@ -294,8 +294,8 @@ class Model_Minion_Migration extends Model
 		}
 
 		DB::delete($this->_table)
-			->where('timestamp', '=', $timestamp)
-			->where('group',  '=', $group)
+			->where('`timestamp`', '=', $timestamp)
+			->where('`group`',  '=', $group)
 			->execute($this->_db);
 
 		return $this;
@@ -324,8 +324,8 @@ class Model_Minion_Migration extends Model
 		{
 			DB::update($this->_table)
 				->set($set)
-				->where('timestamp', '=', $current['timestamp'])
-				->where('group', '=', $current['group'])
+				->where('`timestamp`', '=', $current['timestamp'])
+				->where('`group`', '=', $current['group'])
 				->execute($this->_db);
 		}
 
@@ -342,9 +342,9 @@ class Model_Minion_Migration extends Model
 	public function mark_migration(array $migration, $applied)
 	{
 		DB::update($this->_table)
-			->set(array('applied' => (int) $applied))
-			->where('timestamp', '=', $migration['timestamp'])
-			->where('group',  '=', $migration['group'])
+			->set(array('`applied`' => (int) $applied))
+			->where('`timestamp`', '=', $migration['timestamp'])
+			->where('`group`',  '=', $migration['group'])
 			->execute($this->_db);
 
 		return $this;
@@ -376,11 +376,11 @@ class Model_Minion_Migration extends Model
 		return DB::select()
 			->from(array(
 				$this->_select()
-				->where('applied', '>', 0)
-				->order_by('timestamp', 'DESC'),
+				->where('`applied`', '>', 0)
+				->order_by('`timestamp`', 'DESC'),
 				'temp_table'
 			))
-			->group_by('group')
+			->group_by('`group`')
 			->execute($this->_db)
 			->as_array($key, $value);
 	}
@@ -394,7 +394,7 @@ class Model_Minion_Migration extends Model
 	{
 		return DB::select()
 			->from($this->_table)
-			->group_by('group')
+			->group_by('`group`')
 			->execute($this->_db)
 			->as_array($group_as_key ? 'group' : NULL, 'group');
 	}
@@ -431,11 +431,11 @@ class Model_Minion_Migration extends Model
 			{
 				if (count($group) > 1)
 				{
-					$query->where('group', 'IN', $group);
+					$query->where('`group`', 'IN', $group);
 				}
 				else
 				{
-					$query->where('group', '=', $group[0]);
+					$query->where('`group`', '=', $group[0]);
 				}
 			}
 		}
@@ -444,17 +444,17 @@ class Model_Minion_Migration extends Model
 		{
 			list($target, $up) = $this->resolve_target($group, $target);
 
-			$query->where('group', '=', $group);
+			$query->where('`group`', '=', $group);
 
 			if ($target !== NULL)
 			{
 				if ($up)
 				{
-					$query->where('timestamp', '<=', $target);
+					$query->where('`timestamp`', '<=', $target);
 				}
 				else
 				{
-					$query->where('timestamp', '>=', $target);
+					$query->where('`timestamp`', '>=', $target);
 				}
 			}
 
@@ -462,18 +462,18 @@ class Model_Minion_Migration extends Model
 		// Absolute timestamp
 		else
 		{
-			$query->where('group', '=', $group);
+			$query->where('`group`', '=', $group);
 
-			$statuses = $this->fetch_current_versions('group', 'timestamp');
+			$statuses = $this->fetch_current_versions('`group`', '`timestamp`');
 			$up = (empty($statuses) OR ($statuses[$group[0]] < $target));
 
 			if ($up)
 			{
-				$query->where('timestamp', '<=', $target);
+				$query->where('`timestamp`', '<=', $target);
 			}
 			else
 			{
-				$query->where('timestamp', '>', $target);
+				$query->where('`timestamp`', '>', $target);
 			}
 		}
 
@@ -481,15 +481,15 @@ class Model_Minion_Migration extends Model
 		if ($up)
 		{
 			$query
-				->where('applied', '=', 0)
-				->order_by('timestamp', 'ASC');
+				->where('`applied`', '=', 0)
+				->order_by('`timestamp`', 'ASC');
 		}
 		// If we're migrating down
 		else
 		{
 			$query
-				->where('applied', '=', 1)
-				->order_by('timestamp', 'DESC');
+				->where('`applied`', '=', 1)
+				->order_by('`timestamp`', 'DESC');
 		}
 
 		return array($query->execute($this->_db)->as_array(), $up);
@@ -537,7 +537,7 @@ class Model_Minion_Migration extends Model
 		{
 			if ($group_applied)
 			{
-				$query->where('timestamp', '>', $timestamp);
+				$query->where('`timestamp`', '>', $timestamp);
 			}
 		}
 		else
@@ -551,15 +551,15 @@ class Model_Minion_Migration extends Model
 			}
 
 			$query
-				->where('applied', '=', 1)
-				->where('timestamp', '<=', $timestamp);
+				->where('`applied`', '=', 1)
+				->where('`timestamp`', '<=', $timestamp);
 		}
 
 		$query->limit($amount);
 
-		$query->where('group', '=', $group);
+		$query->where('`group`', '=', $group);
 
-		$query->order_by('timestamp', ($up ? 'ASC' : 'DESC'));
+		$query->order_by('`timestamp`', ($up ? 'ASC' : 'DESC'));
 
 		$results = $query->execute($this->_db);
 
@@ -574,7 +574,7 @@ class Model_Minion_Migration extends Model
 			$results->next();
 		}
 
-		return array( (string) $results->get('timestamp'), $up);
+		return array( (string) $results->get('`timestamp`'), $up);
 	}
 
 }
